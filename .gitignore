@@ -28,8 +28,8 @@ Vagrantfile
 .DS_Store
 
 # Custom
-app/src
-app/moodle_data
+app/src/*
+app/moodle_data/*
 db_data
 redis_data
 data/*
@@ -37,3 +37,8 @@ tmp
 backups
 data-teste
 log.*
+nginx/log
+kompose
+
+!app/moodle_data/.keep
+!app/src/.keep
