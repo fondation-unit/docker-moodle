@@ -1,0 +1,112 @@
+services:
+  moodle:
+    build: ./moodle
+    user: "${ENV_UID}:${ENV_GID}"
+    working_dir: /var/www/html
+    env_file: .env
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./moodle/config.php:/var/www/html/config.php
+      - moodle_data:/var/moodledata
+      - moodle_src:/var/www/html
+    expose:
+      - "9000"
+    networks:
+      - web
+
+  moodle-web:
+    image: nginx:alpine
+    user: "${ENV_UID}:${ENV_GID}"
+    volumes:
+      - ./nginx/moodle.conf:/etc/nginx/conf.d/default.conf
+      - moodle_src:/var/www/html
+    ports:
+      - "8080:80"
+    depends_on:
+      - moodle
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME}.rule=Host(`${DOMAIN_NAME}`)"
+      - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME}.tls.certresolver=myresolver"
+      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=80"
+      # Gzip compression
+      - "traefik.http.routers.${APP_NAME}.middlewares=compress@docker"
+      - "traefik.http.middlewares.compress.compress=true"
+      # Timeouts
+      - "traefik.http.serversTransports.${APP_NAME}-transport.forwardingTimeouts.dialTimeout=60s"
+      - "traefik.http.serversTransports.${APP_NAME}-transport.forwardingTimeouts.responseHeaderTimeout=300s"
+      - "traefik.http.serversTransports.${APP_NAME}-transport.forwardingTimeouts.idleConnTimeout=300s"
+    networks:
+      - web
+
+  db:
+    image: mariadb
+    expose:
+      - "3306"
+    restart: always
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./db/my.cnf:/etc/mysql/my.cnf
+    command:
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
+      - "--innodb-read-only-compressed=OFF"
+    env_file: .env
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=0
+      - TZ=Europe/Paris
+    networks:
+      - web
+
+  redis:
+    image: redis
+    restart: always
+    expose:
+      - "6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - web
+
+  traefik:
+    image: traefik:v3.5
+    user: "${ENV_UID}:${ENV_GID}"
+    container_name: traefik
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.email=${TRAEFIK_ACME_EMAIL}"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      # Debug
+      # - "--log.level=DEBUG"
+      # - "--accesslog=true"
+      # - "--accesslog.format=json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "./traefik/acme.json:/letsencrypt/acme.json"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - web
+
+volumes:
+  moodle_src:
+    driver: local
+  moodle_data:
+    driver: local
+  db_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  web:
+    external: true
