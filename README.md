@@ -47,6 +47,16 @@ chmod 600 traefik/acme.json
 chown $USER:$USER traefik/acme.json
 ```
 
+- Download and prepare Moodle sources:
+
+```sh
+wget -P moodle/src https://download.moodle.org/download.php/direct/stable501/moodle-latest-501.tgz
+tar -xf moodle/src/moodle-latest-501.tgz -C moodle/src
+mv moodle/src/moodle/{*,.*} moodle/src/ 2>/dev/null && \
+  rmdir moodle/src/moodle 2>/dev/null && \
+  rm moodle/src/moodle-latest-*.tgz
+```
+
 3. Build the stack:
 
 ```sh
