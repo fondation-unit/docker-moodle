@@ -27,17 +27,17 @@ Download and place the Moodle source files in the [moodle/src](moodle/src) folde
 
 You should have a structure like: `moodle/src/[ Moodle sources files]`.
 
-### Environment file:
+## Installation
 
-Copy the sample file [.env-sample](.env-sample) as `.env` and fill in the missing information.
+1. Copy the sample file [.env-sample](.env-sample) as `.env` and fill in the missing information.
 
-1. Create the network:
+2. Create the network:
 
 ```sh
 docker network create web
 ```
 
-2. Prepare the Docker stack:
+3. Prepare the Docker stack:
 
 - Edit your `.env` file
 - Configure the `traefik/acme.json` file with the right permissions:
@@ -57,13 +57,13 @@ mv moodle/src/moodle/{*,.*} moodle/src/ 2>/dev/null && \
   rm moodle/src/moodle-latest-*.tgz
 ```
 
-3. Build the stack:
+4. Build the stack:
 
 ```sh
 docker compose up --build
 ```
 
-4. Launch the app:
+5. Launch the app:
 
 ```sh
 docker compose up -d

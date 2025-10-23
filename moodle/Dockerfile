@@ -26,6 +26,9 @@ RUN docker-php-ext-install zip
 RUN pecl install channel://pecl.php.net/xmlrpc-1.0.0RC3
 RUN docker-php-ext-enable xmlrpc
 
+# Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
 # Redis
 RUN pecl install -o -f redis \
     && rm -rf /tmp/pear \
@@ -45,6 +48,7 @@ RUN mkdir /var/moodledata
 
 COPY ./src /var/www/html
 COPY ./config.php /var/www/html/config.php
+RUN composer install --no-dev --classmap-authoritative
 RUN chown -R www-data:www-data /var/www/html/*
 
 RUN echo "*/15 * * * * /usr/bin/php /var/www/html/admin/cli/cron.php >/dev/null" >> /etc/crontab
