@@ -114,3 +114,39 @@ Logs de l'application / Traefik :
 docker compose logs -f moodle
 docker logs traefik
 ```
+
+## Backups
+
+### Create backups of volumes:
+
+```sh
+docker volume ls
+
+docker run --rm -v docker-moodle_db_data:/volume -v /opt/backup:/backup alpine tar czvf /backup/backup_moodle_db_data.tar.gz -C /volume .
+```
+
+### Restore volumes:
+
+Remove the containers:
+
+```sh
+docker compose down
+```
+
+Delete the volumes:
+
+```sh
+docker volume rm docker-moodle_db_data
+```
+
+Create the volumes:
+
+```sh
+docker volume create docker-moodle_db_data
+```
+
+Restore the backups:
+
+```sh
+docker run --rm -v docker-moodle_db_data:/volume -v /opt/backup:/backup alpine sh -c "tar xzvf /backup/backup_moodle_db_data.tar.gz -C /volume"
+```
