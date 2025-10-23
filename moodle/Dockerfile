@@ -9,6 +9,7 @@ RUN apt-get -y update && apt-get install -y \
     libxml2-dev \
     libicu-dev \
     libpng-dev \
+    locales \
     zlib1g-dev
 
 RUN docker-php-ext-install exif
@@ -25,6 +26,11 @@ RUN docker-php-ext-install zip
 
 RUN pecl install channel://pecl.php.net/xmlrpc-1.0.0RC3
 RUN docker-php-ext-enable xmlrpc
+
+# Locales
+RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    sed -i -e 's/# fr_FR.UTF-8 UTF-8/fr_FR.UTF-8 UTF-8/' /etc/locale.gen && \
+    locale-gen
 
 # Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
