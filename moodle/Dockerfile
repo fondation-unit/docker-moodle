@@ -27,10 +27,14 @@ RUN docker-php-ext-install zip
 RUN pecl install channel://pecl.php.net/xmlrpc-1.0.0RC3
 RUN docker-php-ext-enable xmlrpc
 
-# Locales
-RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
-    sed -i -e 's/# fr_FR.UTF-8 UTF-8/fr_FR.UTF-8 UTF-8/' /etc/locale.gen && \
+# Generate locales from LOCALES env variable
+RUN for locale in $LOCALES; do \
+    sed -i -e "s/# $locale/$locale/" /etc/locale.gen; \
+    done && \
     locale-gen
+
+ENV LANG=fr_FR.UTF-8
+ENV LC_ALL=fr_FR.UTF-8
 
 # Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
