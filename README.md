@@ -86,7 +86,7 @@ Uncomment the following lines in `docker-compose.yml` to let Traefik display deb
 Log into the MariaDB container:
 
 ```sh
-docker compose exec db mariadb -U moodle -d moodle
+docker compose exec db mariadb -u moodle -p moodle
 ```
 
 ## Stats
