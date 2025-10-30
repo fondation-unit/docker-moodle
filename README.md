@@ -79,7 +79,7 @@ Uncomment the following lines in `docker-compose.yml` to let Traefik display deb
 - "--accesslog.format=json"
 ```
 
-## Base de données
+## Database
 
 Log into the MariaDB container:
 
