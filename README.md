@@ -51,7 +51,9 @@ chown $USER:$USER traefik/acme.json
 
 ```sh
 wget -P moodle/src https://download.moodle.org/download.php/direct/stable501/moodle-latest-501.tgz
+
 tar -xf moodle/src/moodle-latest-501.tgz -C moodle/src
+
 mv moodle/src/moodle/{*,.*} moodle/src/ 2>/dev/null && \
   rmdir moodle/src/moodle 2>/dev/null && \
   rm moodle/src/moodle-latest-*.tgz
@@ -108,7 +110,7 @@ ps aux | grep dockerd | awk '{print $4, $11}' | sort -nr
 ps aux --sort=-%mem | head -20
 ```
 
-Logs de l'application / Traefik :
+App & Traefik logs:
 
 ```sh
 docker compose logs -f moodle
