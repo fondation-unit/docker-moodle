@@ -33,7 +33,7 @@ You should have a structure like: `moodle/src/[ Moodle sources files]`.
 
 2. Create the network:
 
-```sh
+```bash
 docker network create web
 ```
 
@@ -42,14 +42,14 @@ docker network create web
 - Edit your `.env` file
 - Configure the `traefik/acme.json` file with the right permissions:
 
-```sh
+```bash
 chmod 600 traefik/acme.json
 chown $USER:$USER traefik/acme.json
 ```
 
 - Download and prepare Moodle sources:
 
-```sh
+```bash
 wget -P moodle/src https://download.moodle.org/download.php/direct/stable501/moodle-latest-501.tgz
 
 tar -xf moodle/src/moodle-latest-501.tgz -C moodle/src
@@ -61,13 +61,13 @@ mv moodle/src/moodle/{*,.*} moodle/src/ 2>/dev/null && \
 
 4. Build the stack:
 
-```sh
+```bash
 docker compose up --build
 ```
 
 5. Launch the app:
 
-```sh
+```bash
 docker compose up -d
 ```
 
@@ -75,7 +75,7 @@ docker compose up -d
 
 Uncomment the following lines in `docker-compose.yml` to let Traefik display debug logs:
 
-```sh
+```bash
 - "--log.level=DEBUG"
 - "--accesslog=true"
 - "--accesslog.format=json"
@@ -85,7 +85,7 @@ Uncomment the following lines in `docker-compose.yml` to let Traefik display deb
 
 Log into the MariaDB container:
 
-```sh
+```bash
 docker compose exec db mariadb -u moodle -p moodle
 ```
 
@@ -93,26 +93,26 @@ docker compose exec db mariadb -u moodle -p moodle
 
 Real time stats:
 
-```sh
+```bash
 docker stats
 ```
 
 Observe dockerd processes:
 
-```sh
+```bash
 ps aux | grep dockerd | grep -v grep
 ```
 
 Memory use by dockerd daemon:
 
-```sh
+```bash
 ps aux | grep dockerd | awk '{print $4, $11}' | sort -nr
 ps aux --sort=-%mem | head -20
 ```
 
 App & Traefik logs:
 
-```sh
+```bash
 docker compose logs -f moodle
 docker logs traefik
 ```
@@ -121,7 +121,7 @@ docker logs traefik
 
 ### Create backups of volumes:
 
-```sh
+```bash
 docker volume ls
 
 docker run --rm -v docker-moodle_db_data:/volume -v /opt/backup:/backup alpine tar czvf /backup/backup_moodle_db_data.tar.gz -C /volume .
@@ -131,24 +131,56 @@ docker run --rm -v docker-moodle_db_data:/volume -v /opt/backup:/backup alpine t
 
 Remove the containers:
 
-```sh
+```bash
 docker compose down
 ```
 
 Delete the volumes:
 
-```sh
+```bash
 docker volume rm docker-moodle_db_data
 ```
 
 Create the volumes:
 
-```sh
+```bash
 docker volume create docker-moodle_db_data
 ```
 
 Restore the backups:
 
-```sh
+```bash
 docker run --rm -v docker-moodle_db_data:/volume -v /opt/backup:/backup alpine sh -c "tar xzvf /backup/backup_moodle_db_data.tar.gz -C /volume"
+```
+
+## Localhost setup
+
+Install `mkcert` and its dependencies:
+
+```bash
+brew bundle
+```
+
+Install the Docker compose stack:
+
+```bash
+docker compose -f docker-compose.local.yml build
+```
+
+Generate the certificates for localhost:
+
+```bash
+docker compose -f docker-compose.local.yml run --rm mkcert
+```
+
+Install the local certificates:
+
+```bash
+mkcert -install
+```
+
+Run the stack:
+
+```bash
+docker compose -f docker-compose.local.yml up -d
 ```

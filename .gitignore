@@ -42,3 +42,5 @@ kompose
 
 !moodle/moodle_data/.keep
 !moodle/src/.keep
+
+*.pem
