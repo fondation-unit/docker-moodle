@@ -81,7 +81,7 @@ services:
       - web
 
   traefik:
-    image: traefik:v3.5
+    image: traefik:v3.7
     user: "${ENV_UID}:${ENV_GID}"
     container_name: traefik
     command:
