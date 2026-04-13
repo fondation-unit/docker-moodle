@@ -50,13 +50,8 @@ chown $USER:$USER traefik/acme.json
 - Download and prepare Moodle sources:
 
 ```bash
-wget -P moodle/src https://download.moodle.org/download.php/direct/stable501/moodle-latest-501.tgz
-
-tar -xf moodle/src/moodle-latest-501.tgz -C moodle/src
-
-mv moodle/src/moodle/{*,.*} moodle/src/ 2>/dev/null && \
-  rmdir moodle/src/moodle 2>/dev/null && \
-  rm moodle/src/moodle-latest-*.tgz
+rm moodle/src/.keep
+git clone -b MOODLE_501_STABLE https://github.com/moodle/moodle.git moodle/src
 ```
 
 4. Build the stack:
@@ -183,4 +178,27 @@ Run the stack:
 
 ```bash
 docker compose -f docker-compose.local.yml up -d
+```
+
+## Upgrading Moodle
+
+1. Remove Moodle's sources volume
+
+```sh
+docker compose down
+docker volume ls
+docker volume rm docker-moodle_moodle_src
+```
+
+2. Rebuild
+
+```sh
+docker compose build --no-cache
+```
+
+3. Run the upgrade cli
+
+```sh
+docker compose exec moodle php admin/cli/upgrade.php
+docker compose exec moodle php admin/cli/purge_caches.php
 ```
