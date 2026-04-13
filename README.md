@@ -179,3 +179,26 @@ Run the stack:
 ```bash
 docker compose -f docker-compose.local.yml up -d
 ```
+
+## Upgrading Moodle
+
+1. Remove Moodle's sources volume
+
+```sh
+docker compose down
+docker volume ls
+docker volume rm docker-moodle_moodle_src
+```
+
+2. Rebuild
+
+```sh
+docker compose build --no-cache
+```
+
+3. Run the upgrade cli
+
+```sh
+docker compose exec moodle php admin/cli/upgrade.php
+docker compose exec moodle php admin/cli/purge_caches.php
+```
