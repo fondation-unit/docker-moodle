@@ -1,4 +1,4 @@
-FROM php:8.2-fpm
+FROM php:8.4-fpm
 
 ENV PHP_INI_DIR=/usr/local/etc/php
 COPY ./php.ini "$PHP_INI_DIR/php.ini"
