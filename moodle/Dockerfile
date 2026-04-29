@@ -15,12 +15,12 @@ RUN apt-get -y update && apt-get install -y \
     zlib1g-dev
 
 RUN docker-php-ext-install exif
-RUN docker-php-ext-install mysqli
-RUN docker-php-ext-install opcache
 RUN docker-php-ext-install gd
-RUN docker-php-ext-install soap
 RUN docker-php-ext-configure intl
 RUN docker-php-ext-install intl
+RUN docker-php-ext-install mysqli
+RUN docker-php-ext-install opcache
+RUN docker-php-ext-install soap
 RUN docker-php-ext-configure zip
 RUN docker-php-ext-install zip
 
