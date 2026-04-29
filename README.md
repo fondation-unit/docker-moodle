@@ -66,6 +66,15 @@ docker compose build
 docker compose up -d
 ```
 
+6. Copy and activate the systemd service:
+
+```bash
+cp infra/systemd/docker-moodle.service /etc/systemd/system
+sudo systemctl daemon-reload
+sudo systemctl enable docker-moodle.service
+sudo systemctl start docker-moodle.service
+```
+
 ## Traefik
 
 Uncomment the following lines in `docker-compose.yml` to let Traefik display debug logs:
