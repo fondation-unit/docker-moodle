@@ -51,13 +51,13 @@ chown $USER:$USER traefik/acme.json
 
 ```bash
 rm moodle/src/.keep
-git clone -b MOODLE_501_STABLE https://github.com/moodle/moodle.git moodle/src
+git clone -b MOODLE_502_STABLE https://github.com/moodle/moodle.git moodle/src
 ```
 
 4. Build the stack:
 
 ```bash
-docker compose up --build
+docker compose build
 ```
 
 5. Launch the app:

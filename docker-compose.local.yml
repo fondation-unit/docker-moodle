@@ -1,7 +1,6 @@
 services:
   moodle:
     build: ./moodle
-    user: "${ENV_UID}:${ENV_GID}"
     container_name: moodle
     working_dir: /var/www/html
     env_file: .env
@@ -15,7 +14,7 @@ services:
     expose:
       - "9000"
     healthcheck:
-      test: ["CMD", "php-fpm", "-t"]
+      test: [ "CMD", "php-fpm", "-t" ]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -94,8 +93,5 @@ services:
 
 volumes:
   moodle_data:
-    driver: local
   db_data:
-    driver: local
   redis_data:
-    driver: local
