@@ -98,10 +98,6 @@ services:
       - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
       - "--certificatesresolvers.myresolver.acme.email=${TRAEFIK_ACME_EMAIL}"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-      # Debug
-      # - "--log.level=DEBUG"
-      # - "--accesslog=true"
-      # - "--accesslog.format=json"
     ports:
       - "80:80"
       - "443:443"
@@ -113,9 +109,25 @@ services:
 
 volumes:
   moodle_src:
+    driver: local
   moodle_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/sda1/moodledata
   db_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/sda1/moodledata
   redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/sda1/moodledata
 
 networks:
   web:
