@@ -44,3 +44,6 @@ kompose
 !moodle/src/.keep
 
 *.pem
+
+certs/*
+!certs/.keep

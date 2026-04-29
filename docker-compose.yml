@@ -1,7 +1,6 @@
 services:
   moodle:
     build: ./moodle
-    user: "${ENV_UID}:${ENV_GID}"
     container_name: moodle
     working_dir: /var/www/html
     env_file: .env
@@ -17,7 +16,7 @@ services:
     networks:
       - web
     healthcheck:
-      test: ["CMD", "php-fpm", "-t"]
+      test: [ "CMD", "php-fpm", "-t" ]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -43,9 +42,12 @@ services:
       - "traefik.http.routers.${APP_NAME}.middlewares=compress@docker"
       - "traefik.http.middlewares.compress.compress=true"
       # Timeouts
-      - "traefik.http.serversTransports.${APP_NAME}-transport.forwardingTimeouts.dialTimeout=60s"
-      - "traefik.http.serversTransports.${APP_NAME}-transport.forwardingTimeouts.responseHeaderTimeout=300s"
-      - "traefik.http.serversTransports.${APP_NAME}-transport.forwardingTimeouts.idleConnTimeout=300s"
+      - "traefik.http.serversTransports.${APP_NAME}-transport.forwardingTimeout\
+        s.dialTimeout=60s"
+      - "traefik.http.serversTransports.${APP_NAME}-transport.forwardingTimeout\
+        s.responseHeaderTimeout=300s"
+      - "traefik.http.serversTransports.${APP_NAME}-transport.forwardingTimeout\
+        s.idleConnTimeout=300s"
     networks:
       - web
 
@@ -81,8 +83,7 @@ services:
       - web
 
   traefik:
-    image: traefik:v3.5
-    user: "${ENV_UID}:${ENV_GID}"
+    image: traefik:v3.6
     container_name: traefik
     command:
       - "--api.dashboard=true"
@@ -112,14 +113,10 @@ services:
 
 volumes:
   moodle_src:
-    driver: local
   moodle_data:
-    driver: local
   db_data:
-    driver: local
   redis_data:
-    driver: local
 
 networks:
   web:
-    external: true
+    driver: bridge
