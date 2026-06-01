@@ -115,19 +115,19 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /mnt/sda1/moodledata
+      device: ${MOODLEDATA_PATH}
   db_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /mnt/sda1/moodledata
+      device: ${MOODLEDATA_PATH}
   redis_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /mnt/sda1/moodledata
+      device: ${MOODLEDATA_PATH}
 
 networks:
   web:
