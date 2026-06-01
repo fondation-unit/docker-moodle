@@ -50,7 +50,7 @@ services:
       - "--innodb-read-only-compressed=OFF"
     env_file: .env
     environment:
-      - MYSQL_ALLOW_EMPTY_PASSWORD=0
+      - MARIADB_ALLOW_EMPTY_PASSWORD=0
       - TZ=Europe/Paris
 
   phpmyadmin:
@@ -64,8 +64,8 @@ services:
     environment:
       - PMA_HOST=db
       - PMA_PORT=3306
-      - PMA_USER=${MYSQL_USER}
-      - PMA_PASSWORD=${MYSQL_PASSWORD}
+      - PMA_USER=${MARIADB_USER}
+      - PMA_PASSWORD=${MARIADB_PASSWORD}
       - UPLOAD_LIMIT=64M
 
   redis:
