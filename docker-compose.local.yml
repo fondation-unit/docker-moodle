@@ -14,7 +14,7 @@ services:
     expose:
       - "9000"
     healthcheck:
-      test: [ "CMD", "php-fpm", "-t" ]
+      test: ["CMD", "php-fpm", "-t"]
       interval: 10s
       timeout: 5s
       retries: 3
