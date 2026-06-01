@@ -16,7 +16,7 @@ services:
     networks:
       - web
     healthcheck:
-      test: [ "CMD", "php-fpm", "-t" ]
+      test: ["CMD", "php-fpm", "-t"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -66,7 +66,7 @@ services:
       - "--innodb-read-only-compressed=OFF"
     env_file: .env
     environment:
-      - MYSQL_ALLOW_EMPTY_PASSWORD=0
+      - MARIADB_ALLOW_EMPTY_PASSWORD=0
       - TZ=Europe/Paris
     networks:
       - web
@@ -115,19 +115,19 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /mnt/sda1/moodledata
+      device: ${MOODLEDATA_PATH}
   db_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /mnt/sda1/moodledata
+      device: ${MOODLEDATA_PATH}
   redis_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /mnt/sda1/moodledata
+      device: ${MOODLEDATA_PATH}
 
 networks:
   web:
