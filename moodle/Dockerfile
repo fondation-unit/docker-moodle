@@ -40,7 +40,7 @@ ENV LANG=fr_FR.UTF-8
 ENV LC_ALL=fr_FR.UTF-8
 
 # Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Redis
 RUN pecl install -o -f redis \
@@ -58,7 +58,7 @@ RUN mkdir /var/moodledata
 COPY ./src /var/www/html
 COPY ./config.php /var/www/html/config.php
 
-RUN composer install --no-dev --classmap-authoritative
+# RUN composer install --no-dev --classmap-authoritative
 RUN chown -R www-data:www-data /var/www/html/*
 
 # Entrypoint
