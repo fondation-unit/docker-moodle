@@ -66,7 +66,6 @@ services:
       - "--innodb-read-only-compressed=OFF"
     env_file: .env
     environment:
-      - MARIADB_ALLOW_EMPTY_PASSWORD=0
       - TZ=Europe/Paris
     networks:
       - web
@@ -115,19 +114,19 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ${MOODLEDATA_PATH}
+      device: ${DATA_PATH}/moodledata
   db_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${MOODLEDATA_PATH}
+      device: ${DATA_PATH}/mariadb
   redis_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${MOODLEDATA_PATH}
+      device: ${DATA_PATH}/redis
 
 networks:
   web:
