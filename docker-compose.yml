@@ -114,19 +114,11 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ${DATA_PATH}/moodledata
+      device: ${MOODLE_DATA_PATH}/moodledata
   db_data:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${DATA_PATH}/mariadb
   redis_data:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${DATA_PATH}/redis
 
 networks:
   web:
