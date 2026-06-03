@@ -38,8 +38,16 @@ services:
       - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
       - "traefik.http.routers.${APP_NAME}.tls.certresolver=myresolver"
       - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=80"
+      # Block scanners
+      - "traefik.http.middlewares.block-scan.redirectregex.regex=^/(\\.git|\\.e\
+        nv|\\.DS_Store|v2/_catalog|server-status|setup|console).*"
+      - "traefik.http.middlewares.block-scan.redirectregex.replacement=/"
+      - "traefik.http.middlewares.block-scan.redirectregex.permanent=false"
+      # Middlewares
+      - "traefik.http.routers.${APP_NAME}.middlewares=block-scan@docker,compres\
+        s@docker"
+      - "traefik.http.routers.target.middlewares=anubis@docker" # Use the Anubis middleware
       # Gzip compression
-      - "traefik.http.routers.${APP_NAME}.middlewares=compress@docker"
       - "traefik.http.middlewares.compress.compress=true"
       # Timeouts
       - "traefik.http.serversTransports.${APP_NAME}-transport.forwardingTimeout\
@@ -84,6 +92,8 @@ services:
   traefik:
     image: traefik:v3.6
     container_name: traefik
+    depends_on:
+      - anubis
     command:
       - "--api.dashboard=true"
       - "--providers.docker=true"
@@ -97,12 +107,47 @@ services:
       - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
       - "--certificatesresolvers.myresolver.acme.email=${TRAEFIK_ACME_EMAIL}"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    labels:
+      # Security headers
+      - "traefik.http.middlewares.security-headers.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.security-headers.headers.stsIncludeSubdomains\
+        =true"
+      - "traefik.http.middlewares.security-headers.headers.contentTypeNosniff=t\
+        rue"
+      - "traefik.http.middlewares.security-headers.headers.browserXssFilter=true"
+      # Cache static assets
+      - "traefik.http.middlewares.cache-headers.headers.customresponseheaders.C\
+        ache-Control=public, max-age=31536000"
+      # Anubis middleware
+      - "traefik.http.middlewares.anubis.forwardauth.address=http://anubis:8080\
+        /.within.website/x/cmd/anubis/api/check"
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - "./traefik/acme.json:/letsencrypt/acme.json"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - web
+
+  anubis:
+    image: ghcr.io/techarohq/anubis:main
+    environment:
+      - BIND=:8080 # where to listen for Traefik
+      - "TARGET= " # do redirect - ensure there is a space after '='
+      # Specifies which domains Anubis is allowed to redirect to.
+      - REDIRECT_DOMAINS=${DOMAIN_NAME}
+      # Should be the full external URL for Anubis (including scheme)
+      - PUBLIC_URL=https://${ANUBIS_DOMAIN_NAME}
+      # Should match your domain for proper cookie scoping
+      - COOKIE_DOMAIN=${DOMAIN_NAME}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.anubis.rule=Host(`${ANUBIS_DOMAIN_NAME}`)" # Only Matching Requests for this domain
+      - "traefik.http.routers.anubis.entrypoints=websecure"
+      - "traefik.http.services.anubis.loadbalancer.server.port=8080" # telling Traefik where to receive requests
+      - "traefik.http.routers.anubis.service=anubis" # telling Traefik to use the above specified port
+      - "traefik.http.routers.anubis.tls.certresolver=myresolver" # telling Traefik to resolve a cert for Anubis
     networks:
       - web
 
