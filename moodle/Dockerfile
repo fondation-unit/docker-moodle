@@ -10,12 +10,14 @@ RUN apt-get -y update && apt-get install -y \
     libxml2-dev \
     libicu-dev \
     libpng-dev \
+    libjpeg62-turbo-dev \
+    libwebp-dev \
+    libfreetype6-dev \
     locales \
     msmtp \
     zlib1g-dev
 
 RUN docker-php-ext-install exif
-RUN docker-php-ext-install gd
 RUN docker-php-ext-configure intl
 RUN docker-php-ext-install intl
 RUN docker-php-ext-install mysqli
@@ -23,6 +25,12 @@ RUN docker-php-ext-install opcache
 RUN docker-php-ext-install soap
 RUN docker-php-ext-configure zip
 RUN docker-php-ext-install zip
+
+RUN docker-php-ext-configure gd \
+    --with-freetype \
+    --with-jpeg \
+    --with-webp
+RUN docker-php-ext-install -j$(nproc) gd
 
 RUN pecl install channel://pecl.php.net/xmlrpc-1.0.0RC3
 RUN docker-php-ext-enable xmlrpc
