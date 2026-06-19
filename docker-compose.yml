@@ -45,8 +45,7 @@ services:
       - "traefik.http.middlewares.block-scan.redirectregex.permanent=false"
       # Middlewares
       - "traefik.http.routers.${APP_NAME}.middlewares=block-scan@docker,compres\
-        s@docker"
-      - "traefik.http.routers.target.middlewares=anubis@docker" # Use the Anubis middleware
+        s@docker,anubis@docker"
       # Gzip compression
       - "traefik.http.middlewares.compress.compress=true"
       # Timeouts
