@@ -41,15 +41,14 @@ services:
       - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
       - "traefik.http.routers.${APP_NAME}.tls.certresolver=myresolver"
       - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=80"
-      - "traefik.http.services.${APP_NAME}.loadbalancer.serverstransport=${APP_NAME}-transport"
       # Block scanners
       - "traefik.http.middlewares.block-scan.redirectregex.regex=^/(\\.git|\\.e\
         nv|\\.DS_Store|v2/_catalog|server-status|setup|console).*"
       - "traefik.http.middlewares.block-scan.redirectregex.replacement=/"
       - "traefik.http.middlewares.block-scan.redirectregex.permanent=false"
       # Middlewares
-      - "traefik.http.routers.${APP_NAME}.middlewares=block-scan@docker,compres\
-        s@docker,security-headers@docker,anubis@docker"
+      - "traefik.http.routers.${APP_NAME}.middlewares=block-scan@docker,compress\
+        @docker,security-headers@file,anubis@file"
       # Gzip compression
       - "traefik.http.middlewares.compress.compress=true"
       # Timeouts
@@ -131,6 +130,9 @@ services:
       - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
       - "--certificatesresolvers.myresolver.acme.email=${TRAEFIK_ACME_EMAIL}"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      # Providers
+      - "--providers.file.filename=/etc/traefik/dynamic.yml"
+      - "--providers.file.watch=true"
     labels:
       # Security headers
       - "traefik.http.middlewares.security-headers.headers.stsSeconds=31536000"
@@ -150,7 +152,7 @@ services:
       - "443:443"
     volumes:
       - "./traefik/acme.json:/letsencrypt/acme.json"
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro"
     networks:
       - web
       - socket
@@ -181,7 +183,7 @@ services:
       # Should be the full external URL for Anubis (including scheme)
       - PUBLIC_URL=https://${ANUBIS_DOMAIN_NAME}
       # Should match your domain for proper cookie scoping
-      - COOKIE_DOMAIN=${DOMAIN_NAME}
+      - COOKIE_DOMAIN=${COOKIE_DOMAIN}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.anubis.rule=Host(`${ANUBIS_DOMAIN_NAME}`)" # Only Matching Requests for this domain
