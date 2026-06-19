@@ -1,4 +1,4 @@
-FROM php:8.4-fpm
+FROM php:8.3-fpm
 
 ENV PHP_INI_DIR=/usr/local/etc/php
 COPY ./php.ini "$PHP_INI_DIR/php.ini"
@@ -10,12 +10,14 @@ RUN apt-get -y update && apt-get install -y \
     libxml2-dev \
     libicu-dev \
     libpng-dev \
+    libjpeg62-turbo-dev \
+    libwebp-dev \
+    libfreetype6-dev \
     locales \
     msmtp \
     zlib1g-dev
 
 RUN docker-php-ext-install exif
-RUN docker-php-ext-install gd
 RUN docker-php-ext-configure intl
 RUN docker-php-ext-install intl
 RUN docker-php-ext-install mysqli
@@ -23,6 +25,12 @@ RUN docker-php-ext-install opcache
 RUN docker-php-ext-install soap
 RUN docker-php-ext-configure zip
 RUN docker-php-ext-install zip
+
+RUN docker-php-ext-configure gd \
+    --with-freetype \
+    --with-jpeg \
+    --with-webp
+RUN docker-php-ext-install -j$(nproc) gd
 
 RUN pecl install channel://pecl.php.net/xmlrpc-1.0.0RC3
 RUN docker-php-ext-enable xmlrpc
@@ -40,7 +48,7 @@ ENV LANG=fr_FR.UTF-8
 ENV LC_ALL=fr_FR.UTF-8
 
 # Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Redis
 RUN pecl install -o -f redis \
@@ -58,7 +66,7 @@ RUN mkdir /var/moodledata
 COPY ./src /var/www/html
 COPY ./config.php /var/www/html/config.php
 
-RUN composer install --no-dev --classmap-authoritative
+# RUN composer install --no-dev --classmap-authoritative
 RUN chown -R www-data:www-data /var/www/html/*
 
 # Entrypoint

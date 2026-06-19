@@ -1,0 +1,12 @@
+http:
+  middlewares:
+    anubis:
+      forwardAuth:
+        address: "http://anubis:8080/.within.website/x/cmd/anubis/api/check"
+
+    security-headers:
+      headers:
+        stsSeconds: 31536000
+        stsIncludeSubdomains: true
+        contentTypeNosniff: true
+        browserXssFilter: true
