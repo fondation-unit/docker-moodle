@@ -5,8 +5,10 @@ services:
     working_dir: /var/www/html
     env_file: .env
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     volumes:
       - ./moodle/config.php:/var/www/html/config.php
       - moodle_data:/var/moodledata
@@ -15,6 +17,7 @@ services:
       - "9000"
     networks:
       - web
+      - backend
     healthcheck:
       test: ["CMD", "php-fpm", "-t"]
       interval: 10s
@@ -38,6 +41,7 @@ services:
       - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
       - "traefik.http.routers.${APP_NAME}.tls.certresolver=myresolver"
       - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=80"
+      - "traefik.http.services.${APP_NAME}.loadbalancer.serverstransport=${APP_NAME}-transport"
       # Block scanners
       - "traefik.http.middlewares.block-scan.redirectregex.regex=^/(\\.git|\\.e\
         nv|\\.DS_Store|v2/_catalog|server-status|setup|console).*"
@@ -45,7 +49,7 @@ services:
       - "traefik.http.middlewares.block-scan.redirectregex.permanent=false"
       # Middlewares
       - "traefik.http.routers.${APP_NAME}.middlewares=block-scan@docker,compres\
-        s@docker,anubis@docker"
+        s@docker,security-headers@docker,anubis@docker"
       # Gzip compression
       - "traefik.http.middlewares.compress.compress=true"
       # Timeouts
@@ -74,19 +78,38 @@ services:
     env_file: .env
     environment:
       - TZ=Europe/Paris
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mariadb-admin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u${MYSQL_USER}",
+          "-p${MYSQL_PASSWORD}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     networks:
-      - web
+      - backend
 
   redis:
     image: redis
     container_name: redis
     restart: always
+    command:
+      - redis-server
+      - --save
+      - ""
+      - --appendonly
+      - "no"
     expose:
       - "6379"
-    volumes:
-      - redis_data:/data
     networks:
-      - web
+      - backend
 
   traefik:
     image: traefik:v3.6
@@ -94,8 +117,10 @@ services:
     depends_on:
       - anubis
     command:
-      - "--api.dashboard=true"
+      - "--api.dashboard=false"
       - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.endpoint=tcp://socket-proxy:2375" # Point to the proxy instead of the socket
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
@@ -128,6 +153,23 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     networks:
       - web
+      - socket
+
+  socket-proxy:
+    image: tecnativa/docker-socket-proxy:latest
+    container_name: socket-proxy
+    restart: unless-stopped
+    environment:
+      CONTAINERS: 1 # Traefik needs to list containers
+      SERVICES: 1 # Needed for Docker Swarm (safe to keep)
+      NETWORKS: 1 # Needed to discover container networks
+      TASKS: 1 # Needed for Docker Swarm tasks
+      # Everything else defaults to 0 (denied)
+      POST: 0 # Explicitly deny write operations
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - socket # Isolated network, NOT on 'web'
 
   anubis:
     image: ghcr.io/techarohq/anubis:main
@@ -161,9 +203,11 @@ volumes:
       device: ${MOODLE_DATA_PATH}/moodledata
   db_data:
     driver: local
-  redis_data:
-    driver: local
 
 networks:
+  backend:
+    internal: true
+  socket:
+    internal: true
   web:
-    driver: bridge
+    external: true
