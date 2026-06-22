@@ -62,7 +62,7 @@ services:
       - web
 
   db:
-    image: mariadb
+    image: mariadb:12.3
     container_name: db
     expose:
       - "3306"
@@ -78,16 +78,7 @@ services:
     environment:
       - TZ=Europe/Paris
     healthcheck:
-      test:
-        [
-          "CMD",
-          "mariadb-admin",
-          "ping",
-          "-h",
-          "localhost",
-          "-u${MYSQL_USER}",
-          "-p${MYSQL_PASSWORD}",
-        ]
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-uroot"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -96,7 +87,7 @@ services:
       - backend
 
   redis:
-    image: redis
+    image: redis:8.8
     container_name: redis
     restart: always
     command:
