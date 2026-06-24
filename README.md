@@ -211,3 +211,10 @@ docker compose build --no-cache
 docker compose exec moodle php admin/cli/upgrade.php
 docker compose exec moodle php admin/cli/purge_caches.php
 ```
+
+Or use the maintenance script:
+
+```
+sudo chmod +x scripts/*.sh
+./scripts/upgrade-moodle.sh
+```
