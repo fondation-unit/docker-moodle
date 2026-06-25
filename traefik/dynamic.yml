@@ -1,8 +1,14 @@
 http:
   middlewares:
-    anubis:
-      forwardAuth:
-        address: "http://anubis:8080/.within.website/x/cmd/anubis/api/check"
+    # anubis:
+    #   forwardAuth:
+    #     address: "http://anubis:8080/.within.website/x/cmd/anubis/api/check"
+
+    redirect-www:
+      redirectRegex:
+        regex: "^https?://www\\.(.*)"
+        replacement: "https://$1"
+        permanent: true
 
     security-headers:
       headers:
