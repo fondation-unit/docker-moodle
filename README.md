@@ -34,7 +34,9 @@ You should have a structure like: `moodle/src/[ Moodle sources files]`.
 2. Create the network:
 
 ```bash
-docker network create web
+sudo docker network create web
+sudo docker network create backend
+sudo docker network create socket
 ```
 
 3. Prepare the Docker stack:
