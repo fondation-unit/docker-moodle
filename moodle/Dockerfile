@@ -1,4 +1,4 @@
-FROM php:8.3-fpm
+FROM php:8.4-fpm
 
 ENV PHP_INI_DIR=/usr/local/etc/php
 COPY ./php.ini "$PHP_INI_DIR/php.ini"
@@ -21,7 +21,6 @@ RUN docker-php-ext-install exif
 RUN docker-php-ext-configure intl
 RUN docker-php-ext-install intl
 RUN docker-php-ext-install mysqli
-RUN docker-php-ext-install opcache
 RUN docker-php-ext-install soap
 RUN docker-php-ext-configure zip
 RUN docker-php-ext-install zip
@@ -48,7 +47,7 @@ ENV LANG=fr_FR.UTF-8
 ENV LC_ALL=fr_FR.UTF-8
 
 # Composer
-# RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Redis
 RUN pecl install -o -f redis \

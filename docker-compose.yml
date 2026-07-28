@@ -80,6 +80,10 @@ services:
       - "--innodb-read-only-compressed=OFF"
     env_file: .env
     environment:
+<<<<<<< HEAD
+=======
+      - MARIADB_ALLOW_EMPTY_PASSWORD=0
+>>>>>>> e81fe6c24e99430a55eff9e1a61755aa02e9ca6d
       - TZ=Europe/Paris
     healthcheck:
       test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-uroot"]
@@ -171,9 +175,25 @@ volumes:
     driver_opts:
       type: none
       o: bind
+<<<<<<< HEAD
       device: ${MOODLE_DATA_PATH}/moodledata
   db_data:
     driver: local
+=======
+      device: ${MOODLEDATA_PATH}
+  db_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${MOODLEDATA_PATH}
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${MOODLEDATA_PATH}
+>>>>>>> e81fe6c24e99430a55eff9e1a61755aa02e9ca6d
 
 networks:
   backend:
