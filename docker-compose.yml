@@ -84,7 +84,7 @@ services:
       - web
 
   traefik:
-    image: traefik:v3.6
+    image: traefik:v3.7
     container_name: traefik
     command:
       - "--api.dashboard=true"
