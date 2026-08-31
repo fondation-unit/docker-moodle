@@ -1,0 +1,8 @@
+[moodle-scanner]
+enabled  = true
+filter   = moodle-scanner
+logpath  = /srv/docker-moodle/logs/nginx/access.log
+maxretry = 5
+findtime = 10m
+bantime  = 1h
+banaction = nftables-multiport
