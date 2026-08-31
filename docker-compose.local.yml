@@ -11,6 +11,7 @@ services:
       - ./moodle/config.php:/var/www/html/config.php
       - moodle_data:/var/moodledata
       - ./moodle/src:/var/www/html
+      - ~/.local/share/mkcert:/root/.local/share/mkcert:ro
     expose:
       - "9000"
     healthcheck:
@@ -19,6 +20,7 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
+    # no aliases here — remove the networks/aliases block entirely
 
   moodle-web:
     image: nginx:alpine
@@ -34,9 +36,13 @@ services:
     depends_on:
       - moodle
       - mkcert
+    networks:
+      default:
+        aliases:
+          - moodle-behat.local
 
   db:
-    image: mariadb
+    image: mariadb:12.3
     container_name: db
     expose:
       - "3306"
@@ -50,7 +56,7 @@ services:
       - "--innodb-read-only-compressed=OFF"
     env_file: .env
     environment:
-      - MARIADB_ALLOW_EMPTY_PASSWORD=0
+      - MARIADB_ALLOW_EMPTY_PASSWORD=1
       - TZ=Europe/Paris
 
   phpmyadmin:
@@ -69,7 +75,7 @@ services:
       - UPLOAD_LIMIT=64M
 
   redis:
-    image: redis
+    image: redis:8.8
     container_name: redis
     restart: always
     expose:
@@ -90,6 +96,26 @@ services:
       - "${DOMAIN_NAME}"
       - "127.0.0.1"
       - "::1"
+
+  grunt:
+    image: node:22-bookworm
+    container_name: moodle-grunt
+    working_dir: /var/www/html/public/blocks/studentstracker
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ./moodle/src:/var/www/html
+    tty: true
+    stdin_open: true
+    command: tail -f /dev/null
+
+  selenium:
+    image: selenium/standalone-firefox:latest
+    container_name: moodle-selenium
+    shm_size: 2g
+    ports:
+      - "4444:4444"
+    depends_on:
+      - moodle
 
 volumes:
   moodle_data:

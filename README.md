@@ -34,7 +34,9 @@ You should have a structure like: `moodle/src/[ Moodle sources files]`.
 2. Create the network:
 
 ```bash
-docker network create web
+sudo docker network create web
+sudo docker network create backend
+sudo docker network create socket
 ```
 
 3. Prepare the Docker stack:
@@ -51,7 +53,7 @@ chown $USER:$USER traefik/acme.json
 
 ```bash
 rm moodle/src/.keep
-git clone -b MOODLE_502_STABLE https://github.com/moodle/moodle.git moodle/src
+git clone -b MOODLE_405_STABLE https://github.com/moodle/moodle.git moodle/src
 ```
 
 4. Build the stack:
@@ -210,4 +212,35 @@ docker compose build --no-cache
 ```sh
 docker compose exec moodle php admin/cli/upgrade.php
 docker compose exec moodle php admin/cli/purge_caches.php
+```
+
+Or use the maintenance script:
+
+```
+sudo chmod +x scripts/*.sh
+./scripts/upgrade-moodle.sh
+```
+
+## Behat
+
+```bash
+docker compose -f docker-compose.local.yml exec moodle \
+  curl -v http://moodle-behat.local
+
+docker compose -f docker-compose.local.yml exec -u root moodle \
+  mkdir -p /var/www/behat_moodledata
+
+docker compose -f docker-compose.local.yml exec -u root moodle \
+  chown -R www-data:www-data /var/www/behat_moodledata
+
+docker compose -f docker-compose.local.yml exec -u root moodle \
+  chmod -R 775 /var/www/behat_moodledata
+
+docker compose -f docker-compose.local.yml exec moodle php public/admin/tool/behat/cli/init.php
+
+docker compose -f docker-compose.local.yml exec moodle php public/admin/tool/behat/cli/run.php -vvv --tags="@block_studentstracker"
+```
+
+```bash
+docker compose -f docker-compose.local.yml exec moodle php public/admin/tool/behat/cli/util.php --enable
 ```

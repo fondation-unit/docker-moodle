@@ -21,7 +21,6 @@ RUN docker-php-ext-install exif
 RUN docker-php-ext-configure intl
 RUN docker-php-ext-install intl
 RUN docker-php-ext-install mysqli
-RUN docker-php-ext-install opcache
 RUN docker-php-ext-install soap
 RUN docker-php-ext-configure zip
 RUN docker-php-ext-install zip
@@ -66,7 +65,7 @@ RUN mkdir /var/moodledata
 COPY ./src /var/www/html
 COPY ./config.php /var/www/html/config.php
 
-RUN composer install --no-dev --classmap-authoritative
+# RUN composer install --no-dev --classmap-authoritative
 RUN chown -R www-data:www-data /var/www/html/*
 
 # Entrypoint
