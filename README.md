@@ -220,3 +220,27 @@ Or use the maintenance script:
 sudo chmod +x scripts/*.sh
 ./scripts/upgrade-moodle.sh
 ```
+
+## Behat
+
+```bash
+docker compose -f docker-compose.local.yml exec moodle \
+  curl -v http://moodle-behat.local
+
+docker compose -f docker-compose.local.yml exec -u root moodle \
+  mkdir -p /var/www/behat_moodledata
+
+docker compose -f docker-compose.local.yml exec -u root moodle \
+  chown -R www-data:www-data /var/www/behat_moodledata
+
+docker compose -f docker-compose.local.yml exec -u root moodle \
+  chmod -R 775 /var/www/behat_moodledata
+
+docker compose -f docker-compose.local.yml exec moodle php public/admin/tool/behat/cli/init.php
+
+docker compose -f docker-compose.local.yml exec moodle php public/admin/tool/behat/cli/run.php -vvv --tags="@block_studentstracker"
+```
+
+```bash
+docker compose -f docker-compose.local.yml exec moodle php public/admin/tool/behat/cli/util.php --enable
+```
