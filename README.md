@@ -244,3 +244,12 @@ docker compose -f docker-compose.local.yml exec moodle php public/admin/tool/beh
 ```bash
 docker compose -f docker-compose.local.yml exec moodle php public/admin/tool/behat/cli/util.php --enable
 ```
+
+## Grunt
+
+```bash
+docker compose -f docker-compose.local.yml exec grunt bash
+npx grunt watch
+```
+
+Or: `npx grunt amd --root=public/blocks/myblock...`
