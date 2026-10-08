@@ -16,6 +16,7 @@ cat > /etc/msmtprc <<EOL
 defaults
 auth on
 tls on
+tls_starttls on
 tls_trust_file /etc/ssl/certs/ca-certificates.crt
 logfile /var/log/msmtp.log
 
@@ -24,7 +25,7 @@ host ${SMTP_HOST}
 port ${SMTP_PORT:-587}
 user ${SMTP_USER}
 password ${SMTP_PASS}
-from ${SMTP_USER}
+from ${SMTP_FROM}
 EOL
 
 chmod 644 /etc/msmtprc
@@ -40,6 +41,7 @@ DOMAIN_NAME=${DOMAIN_NAME}
 SMTP_HOST=${SMTP_HOST}
 SMTP_USER=${SMTP_USER}
 SMTP_PASS=${SMTP_PASS}
+SMTP_FROM=${SMTP_FROM}
 SMTP_SECURE=${SMTP_SECURE}
 SMTP_AUTHTYPE=${SMTP_AUTHTYPE}
 SMTP_PORT=${SMTP_PORT}
