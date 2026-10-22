@@ -47,3 +47,5 @@ kompose
 
 certs/*
 !certs/.keep
+
+logs
